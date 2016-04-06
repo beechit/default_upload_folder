@@ -1,16 +1,12 @@
-FAL SecureDownLoad
-======================
+Default upload folder
+=====================
 
-This extension (fal_securedownload) aims to be a general solution to secure your assets.
-
-When you storage is marked as non-public all links to files from that storage are replaced (also for processed files).
-
-The access to assets can be set on folder/file bases by setting access to fe_groups in the file module.
+Make it possible to configure the default upload folder for a certain TCA column
 
 **How to use:**
 
-1. Download and install fal_securedownload
-2. Create the default folders _(folder need to exists and editor needs to have access to the folder)_
+1. Download and install default_upload_folder
+2. Create the default folders *(folder need to exists and editor needs to have access to the folder)*
 3. Add configuration to pageTs ::
 
     default_upload_folders {
