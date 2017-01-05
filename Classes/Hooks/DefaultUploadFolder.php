@@ -7,6 +7,7 @@ namespace BeechIt\DefaultUploadFolder\Hooks;
  */
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
@@ -44,13 +45,23 @@ class DefaultUploadFolder
 
         // Folder by combined identifier
         if (preg_match('/[0-9]+:/', $subFolder['value'])) {
-            $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
-                $subFolder['value']
-            );
-        } elseif (!empty($uploadFolder) && $subFolder['value'] !== null) {
-            if ($uploadFolder->hasFolder($subFolder['value'])) {
-                $uploadFolder = $uploadFolder->getSubfolder($subFolder['value']);
+            try {
+                $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
+                    $subFolder['value']
+                );
+            } catch (FolderDoesNotExistException $e) {
+                // todo: try to create the folder
             }
+        }
+
+        if (
+            $uploadFolder instanceof Folder
+            &&
+            $subFolder['value'] !== null
+            &&
+            $uploadFolder->hasFolder($subFolder['value'])
+        ) {
+            $uploadFolder = $uploadFolder->getSubfolder($subFolder['value']);
         }
 
         return $uploadFolder;
