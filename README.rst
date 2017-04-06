@@ -5,9 +5,10 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 **How to use:**
 
-1. Download and install default_upload_folder
-2. Create the default folders *(folder need to exists and editor needs to have access to the folder)*
-3. Add configuration to pageTs ::
+1. Download form TER or require (`composer require beechit/default-upload-folder`) extension default_upload_folder
+2. Install extension default_upload_folder via the extension manager
+3. Create the default folders *(folder need to exists and editor needs to have access to the folder)*
+4. Add configuration to pageTs ::
 
     default_upload_folders {
         # folder can be a combined identifier
@@ -21,4 +22,4 @@ Make it possible to configure the default upload folder for a certain TCA column
     }
 
 **Requirements:**
-    TYPO3 7 LTS
+    TYPO3 7 LTS or TYPO3 8.*
