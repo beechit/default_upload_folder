@@ -42,6 +42,12 @@ class DefaultUploadFolder
                 $pageTs
             );
         }
+        if ($subFolder['value'] === null) {
+            $subFolder = $backendUserAuthentication->getTSConfig(
+                'default_upload_folders.defaultForAllTables',
+                $pageTs
+            );
+        }
 
         // Folder by combined identifier
         if (preg_match('/[0-9]+:/', $subFolder['value'])) {
