@@ -31,7 +31,8 @@ class DefaultUploadFolder
         $uploadFolder = $params['uploadFolder'];
         $table = $params['table'];
         $field = $params['field'];
-        $pageTs = BackendUtility::getPagesTSconfig($params['pid']);
+        $pid = $params['pid'] ?? abs(array_keys($_GET['edit'][$table])[0]);
+        $pageTs = BackendUtility::getPagesTSconfig($pid);
         $subFolder = $backendUserAuthentication->getTSConfig(
             'default_upload_folders.' . $table . '.' . $field,
             $pageTs
