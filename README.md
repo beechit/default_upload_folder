@@ -28,4 +28,4 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 **Requirements:**
 
-    TYPO3 7 LTS or TYPO3 8.*
+    TYPO3 9.5.* LTS or TYPO3 10.4.*
