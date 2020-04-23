@@ -48,6 +48,13 @@ class DefaultUploadFolder
                 $subFolder = $backendUserAuthentication->getTSConfig()['default_upload_folders.'][$table] ?? false;
             }
         }
+
+        if ($subFolder === false) {
+            if (is_array($pageTs)) {
+                $subFolder = $pageTs['default_upload_folders.']['defaultForAllTables'] ?? false;
+            } else {
+                $subFolder = $backendUserAuthentication->getTSConfig()['default_upload_folders.']['defaultForAllTables'] ?? false;
+            }
         }
 
         // Folder by combined identifier
