@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
@@ -32,28 +33,28 @@ class DefaultUploadFolder
         $table = $params['table'];
         $field = $params['field'];
         $pageTs = BackendUtility::getPagesTSconfig($params['pid']);
-        $subFolder = $backendUserAuthentication->getTSConfig(
-            'default_upload_folders.' . $table . '.' . $field,
-            $pageTs
-        );
-        if ($subFolder['value'] === null) {
-            $subFolder = $backendUserAuthentication->getTSConfig(
-                'default_upload_folders.' . $table,
-                $pageTs
-            );
+
+
+        if (is_array($pageTs)) {
+            $subFolder = $pageTs['default_upload_folders.'][$table][$field] ?? false;
+        } else {
+            $subFolder = $backendUserAuthentication->getTSConfig()['default_upload_folders.'][$table][$field] ?? false;
         }
-        if ($subFolder['value'] === null) {
-            $subFolder = $backendUserAuthentication->getTSConfig(
-                'default_upload_folders.defaultForAllTables',
-                $pageTs
-            );
+
+        if ($subFolder === false) {
+            if (is_array($pageTs)) {
+                $subFolder = $pageTs['default_upload_folders.'][$table] ?? false;
+            } else {
+                $subFolder = $backendUserAuthentication->getTSConfig()['default_upload_folders.'][$table] ?? false;
+            }
+        }
         }
 
         // Folder by combined identifier
-        if (preg_match('/[0-9]+:/', $subFolder['value'])) {
+        if (preg_match('/[0-9]+:/', $subFolder)) {
             try {
-                $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
-                    $subFolder['value']
+                $uploadFolder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(
+                    $subFolder
                 );
             } catch (FolderDoesNotExistException $e) {
                 // todo: try to create the folder
@@ -63,11 +64,11 @@ class DefaultUploadFolder
         if (
             $uploadFolder instanceof Folder
             &&
-            $subFolder['value'] !== null
+            $subFolder !== false
             &&
-            $uploadFolder->hasFolder($subFolder['value'])
+            $uploadFolder->hasFolder($subFolder)
         ) {
-            $uploadFolder = $uploadFolder->getSubfolder($subFolder['value']);
+            $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
         return $uploadFolder;
