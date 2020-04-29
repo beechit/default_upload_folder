@@ -15,12 +15,12 @@ $EM_CONF[$_EXTKEY] = [
     'author' => 'Frans Saris',
     'author_email' => 't3ext@beecht.it',
     'author_company' => 'Beech.it',
-    'version' => '1.0.1',
+    'version' => '2.0.1',
     'constraints' =>
         [
             'depends' =>
                 [
-                    'typo3' => '7.6.4-9.5.99',
+                    'typo3' => '8.7.0-10.4.99',
                 ],
             'conflicts' =>
                 [
