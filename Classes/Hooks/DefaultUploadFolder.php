@@ -33,7 +33,8 @@ class DefaultUploadFolder
         $uploadFolder = $params['uploadFolder'];
         $table = $params['table'];
         $field = $params['field'];
-        $pageTs = BackendUtility::getPagesTSconfig($params['pid']);
+        $pid = $params['pid'] ?? abs(array_keys($_GET['edit'][$table])[0]);
+        $pageTs = BackendUtility::getPagesTSconfig($pid);
         $userTsConfig = $backendUserAuthentication->getTSConfig();
         $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
         if (trim($subFolder) === '') {
