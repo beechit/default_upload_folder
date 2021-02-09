@@ -31,9 +31,16 @@ class DefaultUploadFolder
         $uploadFolder = $params['uploadFolder'];
         $table = $params['table'];
         $field = $params['field'];
-        $pageTs = BackendUtility::getPagesTSconfig($params['pid']);
+        $pid = $params['pid'] ?? abs(array_keys($_GET['edit'][$table])[0]);
+        $pageTs = BackendUtility::getPagesTSconfig($pid);
 
         $subFolder = $pageTs['default_upload_folders.'][$table . '.'][$field] ?? $pageTs['default_upload_folders.'][$table] ?? '';
+
+        // No folder set check if there is a default for all tables set
+        if (trim($subFolder) === '') {
+            $subFolder = $pageTs['default_upload_folders.']['defaultForAllTables'] ?? '';
+        }
+
         // Folder by combined identifier
         if (preg_match('/[0-9]+:/', $subFolder)) {
             try {
