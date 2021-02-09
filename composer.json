@@ -4,7 +4,7 @@
 	"description": "Make it possible to configure the default upload folder for a certain TCA column",
 	"license": ["GPL-2.0+"],
 	"require": {
-		"typo3/cms-core": "^8.7 || ^9.5.17 || ^10.4"
+		"typo3/cms-core": "^10.4"
 	},
 	"autoload": {
 		"psr-4": {
