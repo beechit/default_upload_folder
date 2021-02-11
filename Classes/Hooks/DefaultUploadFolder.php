@@ -27,11 +27,12 @@ class DefaultUploadFolder
      */
     public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication):Folder
     {
+        $rteParameters = $_GET['P'] ?? [];
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
-        $table = $params['table'];
-        $field = $params['field'];
-        $pid = $params['pid'] ?? abs(array_keys($_GET['edit'][$table])[0]);
+        $table = $params['table'] ?? $rteParameters['table'];
+        $field = $params['field'] ?? $rteParameters['fieldName'];
+        $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
         $pageTs = BackendUtility::getPagesTSconfig($pid);
 
         $subFolder = $pageTs['default_upload_folders.'][$table . '.'][$field] ?? $pageTs['default_upload_folders.'][$table] ?? '';
