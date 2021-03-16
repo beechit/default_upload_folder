@@ -13,7 +13,7 @@
 	},
 	"extra": {
 		"typo3/cms": {
-			"extension-key": "default-upload-folder"
+			"extension-key": "default_upload_folder"
 		}
 	}
 }
