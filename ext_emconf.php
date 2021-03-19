@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = [
     'author' => 'Frans Saris',
     'author_email' => 't3ext@beecht.it',
     'author_company' => 'Beech.it',
-    'version' => '1.2.0',
+    'version' => '1.2.1',
     'constraints' =>
         [
             'depends' =>
