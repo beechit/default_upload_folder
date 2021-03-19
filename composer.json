@@ -10,5 +10,10 @@
 		"psr-4": {
 			"BeechIt\\DefaultUploadFolder\\": "Classes/"
 		}
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "default_upload_folder"
+		}
 	}
 }
