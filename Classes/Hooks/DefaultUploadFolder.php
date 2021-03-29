@@ -25,7 +25,7 @@ class DefaultUploadFolder
      * @param BackendUserAuthentication $backendUserAuthentication
      * @return Folder
      */
-    public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication)
+    public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication):Folder
     {
         $rteParameters = $_GET['P'] ?? [];
         /** @var Folder $uploadFolder */
