@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
 /**
  * Class DefaultUploadFolder
@@ -54,7 +55,28 @@ class DefaultUploadFolder
                     $subFolder
                 );
             } catch (FolderDoesNotExistException $e) {
-                // todo: try to create the folder
+
+                if (strpos($subFolder, ':') !== false) {
+                    $parts = explode(':', $subFolder);
+
+                    $data = [
+                        'newfolder' => [
+                            0 => [
+                                'data' => $parts[1],
+                                'target' => $parts[0].':/',
+                            ]
+                        ]
+                    ];
+
+                    $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
+                    $fileProcessor->setActionPermissions();
+                    $fileProcessor->start($data);
+                    $fileData = $fileProcessor->processData();
+
+                    $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
+                        $subFolder
+                    );
+                }
             }
         }
 
