@@ -7,7 +7,7 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 1. Download form TER or require (`composer require beechit/default-upload-folder`) extension default_upload_folder
 2. Install extension default_upload_folder via the extension manager
-3. Create the default folders *(folder need to exists and editor needs to have access to the folder)*
+3. Create the default folders or the folder is automatically created *(Editors needs access to storage and the folder root)*
 4. Add configuration to pageTs
 
 ```
