@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace BeechIt\DefaultUploadFolder\Hooks;
 /*
  * All code (c) Beech Applications B.V. all rights reserved
@@ -26,7 +27,7 @@ class DefaultUploadFolder
      * @param BackendUserAuthentication $backendUserAuthentication
      * @return Folder|null
      */
-    public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication):?Folder
+    public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
         if (!($params['uploadFolder'] instanceof Folder)) {
             return null;
@@ -55,28 +56,7 @@ class DefaultUploadFolder
                     $subFolder
                 );
             } catch (FolderDoesNotExistException $e) {
-
-                if (strpos($subFolder, ':') !== false) {
-                    $parts = explode(':', $subFolder);
-
-                    $data = [
-                        'newfolder' => [
-                            0 => [
-                                'data' => $parts[1],
-                                'target' => $parts[0].':/',
-                            ]
-                        ]
-                    ];
-
-                    $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
-                    $fileProcessor->setActionPermissions();
-                    $fileProcessor->start($data);
-                    $fileData = $fileProcessor->processData();
-
-                    $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
-                        $subFolder
-                    );
-                }
+                $uploadFolder = $this->createUploadFolder($subFolder);
             }
         }
 
@@ -88,6 +68,36 @@ class DefaultUploadFolder
         return $uploadFolder;
     }
 
+    /**
+     * @param $combinedFolderIdentifier
+     * @return Folder|null
+     */
+    private function createUploadFolder($combinedFolderIdentifier): ?Folder
+    {
+        if (strpos($combinedFolderIdentifier, ':') === false) {
+            return null;
+        }
+        $parts = explode(':', $combinedFolderIdentifier);
+        $data = [
+            'newfolder' => [
+                0 => [
+                    'data' => $parts[1],
+                    'target' => $parts[0] . ':/',
+                ]
+            ]
+        ];
+
+        $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
+        $fileProcessor->setActionPermissions();
+        $fileProcessor->start($data);
+        $fileProcessor->processData();
+
+        $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
+            $combinedFolderIdentifier
+        );
+        return $uploadFolder;
+    }
+
     protected function getDefaultUploadFolderForTableAndField(
         $table,
         $field,
@@ -95,9 +105,9 @@ class DefaultUploadFolder
         array $userTsConfig
     )
     {
-        $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
+        $subFolder = $defaultPageTs['default_upload_folders.'][$table . '.'][$field] ?? '';
         if (empty($subFolder)) {
-            $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
+            $subFolder = $userTsConfig['default_upload_folders.'][$table . '.'][$field] ?? '';
         }
         return $subFolder;
     }
