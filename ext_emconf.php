@@ -2,6 +2,7 @@
 
 // Extension Manager/Repository config file for ext "default_upload_folder"
 
+// @phpstan-ignore-next-line
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Default upload folder',
     'description' => 'Make it possible to configure the default upload folder for a certain TCA column',
