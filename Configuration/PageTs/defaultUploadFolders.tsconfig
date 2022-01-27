@@ -1,4 +1,3 @@
-
 default_upload_folders {
     # folder can be a combined identifier
     tx_news_domain_model_news = 1:news
