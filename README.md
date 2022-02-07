@@ -28,8 +28,9 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 **FAQ**
 
-- When the user does not have access to the folder the "select & upload" buttons is not available.
+_What happens when the user does not have access to the upload folder?_
+> The "Select & upload" button is not available
 
 **Requirements:**
 
-    TYPO3 10 LTS
+> TYPO3 10 LTS
