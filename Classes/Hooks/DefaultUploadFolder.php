@@ -12,11 +12,16 @@ use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
 class DefaultUploadFolder
 {
     /**
-     * Get default upload folder.
+     * Get default upload folder for table
+     * If none is found for current table defaultForAllTables is used.
+     * @param array $params
+     * @param BackendUserAuthentication $backendUserAuthentication
+     * @return Folder|null
      */
     public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
@@ -52,7 +57,7 @@ class DefaultUploadFolder
                     $subFolder
                 );
             } catch (FolderDoesNotExistException $e) {
-                // todo: try to create the folder
+                $uploadFolder = $this->createUploadFolder($subFolder);
             }
         }
 
@@ -63,18 +68,46 @@ class DefaultUploadFolder
         return $uploadFolder;
     }
 
+    /**
+     * @param $combinedFolderIdentifier
+     * @return Folder|null
+     */
+    private function createUploadFolder($combinedFolderIdentifier): ?Folder
+    {
+        if (strpos($combinedFolderIdentifier, ':') === false) {
+            return null;
+        }
+        $parts = explode(':', $combinedFolderIdentifier);
+        $data = [
+            'newfolder' => [
+                0 => [
+                    'data' => $parts[1],
+                    'target' => $parts[0] . ':/',
+                ]
+            ]
+        ];
+
+        $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
+        $fileProcessor->setActionPermissions();
+        $fileProcessor->start($data);
+        $fileProcessor->processData();
+
+        $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
+            $combinedFolderIdentifier
+        );
+        return $uploadFolder;
+    }
+
     protected function getDefaultUploadFolderForTableAndField(
         $table,
         $field,
         array $defaultPageTs,
         array $userTsConfig
-    ) {
+    {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
-
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
         }
-
         return $subFolder;
     }
 

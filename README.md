@@ -7,7 +7,7 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 1. Download form TER or require (`composer require beechit/default-upload-folder`) extension default_upload_folder
 2. Install extension default_upload_folder via the extension manager
-3. Create the default folders *(folder need to exists and editor needs to have access to the folder)*
+3. Create the default folders or the folder is automatically created *(Editors needs access to storage and the folder root)*
 4. Add configuration to pageTs
 
 ```
@@ -26,6 +26,19 @@ Make it possible to configure the default upload folder for a certain TCA column
     }
 ```
 
+**FAQ**
+
+_What happens when the user does not have access to the upload folder?_
+> The "Select & upload" button is not available
+
+_How do the fallbacks work?_
+> 1. First it will check if there is a default upload folder for the table & field combination.
+> 2. Then it will check if there is a default upload folder for the table.
+> 3. At last it will check if there is configuration for `defaultForAllTables`
+
+_Are folders automatically created?_
+> Yes, but only if path set with combined identifiers like 1:myNewsPicturesFolder
+
 **Requirements:**
 
-    TYPO3 10 LTS
+> TYPO3 10 LTS
