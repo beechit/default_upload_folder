@@ -21,8 +21,8 @@ class DefaultUploadFolder
 {
 
     /**
-     * Get default upload folder
-     *
+     * Get default upload folder for table
+     * If none is found for current table defaultForAllTables is used.
      * @param array $params
      * @param BackendUserAuthentication $backendUserAuthentication
      * @return Folder|null

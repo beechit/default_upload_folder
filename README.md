@@ -31,6 +31,14 @@ Make it possible to configure the default upload folder for a certain TCA column
 _What happens when the user does not have access to the upload folder?_
 > The "Select & upload" button is not available
 
+_How do the fallbacks work?_
+> 1. First it will check if there is a default upload folder for the table & field combination.
+> 2. Then it will check if there is a default upload folder for the table.
+> 3. At last it will check if there is configuration for `defaultForAllTables`
+
+_Are folders automatically created?_
+> Yes, but only if path set with combined identifiers like 1:myNewsPicturesFolder
+
 **Requirements:**
 
 > TYPO3 10 LTS
