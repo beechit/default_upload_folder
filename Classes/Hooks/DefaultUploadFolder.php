@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace BeechIt\DefaultUploadFolder\Hooks;
-/*
- * All code (c) Beech Applications B.V. all rights reserved
- */
+
+// All code (c) Beech Applications B.V. all rights reserved
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -14,12 +14,8 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
-/**
- * Class DefaultUploadFolder
- */
 class DefaultUploadFolder
 {
-
     /**
      * Get default upload folder for table
      * If none is found for current table defaultForAllTables is used.
@@ -27,14 +23,17 @@ class DefaultUploadFolder
      * @param BackendUserAuthentication $backendUserAuthentication
      * @return Folder|null
      */
-    public function getDefaultUploadFolder($params, BackendUserAuthentication $backendUserAuthentication): ?Folder
+    public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
-        if (!($params['uploadFolder'] instanceof Folder)) {
+        if (! ($params['uploadFolder'] instanceof Folder)) {
             return null;
         }
+
         $rteParameters = $_GET['P'] ?? [];
+
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
+
         $table = $params['table'] ?? $rteParameters['table'];
         $field = $params['field'] ?? $rteParameters['fieldName'];
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
@@ -42,10 +41,12 @@ class DefaultUploadFolder
         $userTsConfig = $backendUserAuthentication->getTSConfig();
 
         $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
-        if (trim($subFolder) === '') {
+
+        if ('' === trim($subFolder)) {
             $subFolder = $this->getDefaultUploadFolderForTable($table, $pageTs, $userTsConfig);
         }
-        if (trim($subFolder) === '') {
+
+        if ('' === trim($subFolder)) {
             $subFolder = $this->getDefaultUploadFolderForAllTables($pageTs, $userTsConfig);
         }
 
@@ -60,8 +61,7 @@ class DefaultUploadFolder
             }
         }
 
-        if (trim($subFolder) && $uploadFolder instanceof Folder && $uploadFolder->hasFolder($subFolder)
-        ) {
+        if (trim($subFolder) && $uploadFolder instanceof Folder && $uploadFolder->hasFolder($subFolder)) {
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
@@ -103,11 +103,10 @@ class DefaultUploadFolder
         $field,
         array $defaultPageTs,
         array $userTsConfig
-    )
     {
-        $subFolder = $defaultPageTs['default_upload_folders.'][$table . '.'][$field] ?? '';
+        $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
         if (empty($subFolder)) {
-            $subFolder = $userTsConfig['default_upload_folders.'][$table . '.'][$field] ?? '';
+            $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
         }
         return $subFolder;
     }
@@ -116,24 +115,26 @@ class DefaultUploadFolder
         $table,
         array $defaultPageTs,
         array $userTsConfig
-    )
-    {
+    ) {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table] ?? '';
+
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table] ?? '';
         }
+
         return $subFolder;
     }
 
     protected function getDefaultUploadFolderForAllTables(
         array $defaultPageTs,
         array $userTsConfig
-    )
-    {
+    ) {
         $subFolder = $defaultPageTs['default_upload_folders.']['defaultForAllTables'] ?? '';
+
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.']['defaultForAllTables'] ?? '';
         }
+
         return $subFolder;
     }
 }
