@@ -103,7 +103,7 @@ class DefaultUploadFolder
         $field,
         array $defaultPageTs,
         array $userTsConfig
-    {
+    ) {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
