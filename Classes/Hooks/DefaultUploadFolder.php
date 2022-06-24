@@ -92,7 +92,7 @@ class DefaultUploadFolder
         $fileProcessor->start($data);
         $fileProcessor->processData();
 
-        $uploadFolder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(
+        $uploadFolder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(
             $combinedFolderIdentifier
         );
         return $uploadFolder;
