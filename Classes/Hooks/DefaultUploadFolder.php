@@ -25,10 +25,6 @@ class DefaultUploadFolder
      */
     public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
-        if (! ($params['uploadFolder'] instanceof Folder)) {
-            return null;
-        }
-
         $rteParameters = $_GET['P'] ?? [];
 
         /** @var Folder $uploadFolder */
@@ -65,7 +61,7 @@ class DefaultUploadFolder
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
-        return $uploadFolder;
+        return ($uploadFolder instanceof Folder) ? $uploadFolder : null;
     }
 
     /**
