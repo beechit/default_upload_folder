@@ -9,6 +9,7 @@ namespace BeechIt\DefaultUploadFolder\Hooks;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -54,6 +55,8 @@ class DefaultUploadFolder
                 );
             } catch (FolderDoesNotExistException $e) {
                 $uploadFolder = $this->createUploadFolder($subFolder);
+            } catch (InsufficientFolderAccessPermissionsException $e) {
+                $uploadFolder = null;
             }
         }
 
