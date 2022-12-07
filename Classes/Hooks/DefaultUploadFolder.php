@@ -31,19 +31,22 @@ class DefaultUploadFolder
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
 
-        $table = $params['table'] ?? $rteParameters['table'];
-        $field = $params['field'] ?? $rteParameters['fieldName'];
+        $table = $params['table'] ?? $rteParameters['table'] ?? null;
+        $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
         $pageTs = BackendUtility::getPagesTSconfig($pid);
         $userTsConfig = $backendUserAuthentication->getTSConfig();
 
-        $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
+        $subFolder = '';
+        if ($table !== null && $field !== null) {
+            $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
+        }
 
-        if ('' === trim($subFolder)) {
+        if (trim($subFolder) === '' && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTable($table, $pageTs, $userTsConfig);
         }
 
-        if ('' === trim($subFolder)) {
+        if (trim($subFolder) === '') {
             $subFolder = $this->getDefaultUploadFolderForAllTables($pageTs, $userTsConfig);
         }
 
