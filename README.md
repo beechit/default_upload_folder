@@ -41,4 +41,4 @@ _Are folders automatically created?_
 
 **Requirements:**
 
-> TYPO3 10 LTS
+> TYPO3 10 LTS or TYPO3 11 LTS
