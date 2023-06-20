@@ -8,7 +8,14 @@ default_upload_folders {
     tx_news_domain_model_news.fal_related_files = news_downloads
     tx_news_domain_model_news.fal_media = news_media
 
-
     # You can set a fallback for all tables
     defaultForAllTables = 1:myDefaultUploadFolderForThisPartOfTheTree
+
+    # Addition:
+    # Which outputs:
+    # 1:news/<currentyear>/<currentmonth>
+    # for example:
+    # 1:news/2023/june
+    tx_news_domain_model_news.strftime = 1
+    tx_news_domain_model_news = 1:news/%Y/%F
 }
