@@ -6,6 +6,7 @@ namespace BeechIt\DefaultUploadFolder\Hooks;
 
 // All code (c) Beech Applications B.V. all rights reserved
 
+use Solarium\Component\Debug;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
@@ -14,9 +15,12 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class DefaultUploadFolder
 {
+    protected $defaultCurrentFolder = 'default_upload_folders.';
+    protected $identifier;
     /**
      * Get default upload folder for table
      * If none is found for current table defaultForAllTables is used.
@@ -27,10 +31,9 @@ class DefaultUploadFolder
     public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
         $rteParameters = $_GET['P'] ?? [];
-
+        //DebuggerUtility::var_dump($params);
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
-
         $table = $params['table'] ?? $rteParameters['table'] ?? null;
         $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
@@ -38,6 +41,7 @@ class DefaultUploadFolder
         $userTsConfig = $backendUserAuthentication->getTSConfig();
 
         $subFolder = '';
+
         if ($table !== null && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
         }
@@ -49,7 +53,10 @@ class DefaultUploadFolder
         if (trim($subFolder) === '') {
             $subFolder = $this->getDefaultUploadFolderForAllTables($pageTs, $userTsConfig);
         }
+        $subFolder = $this->checkAndConvertForStrfTime($subFolder,$pageTs, $table);
 
+        $identifierExplode = explode( ':',$subFolder);
+        $this->identifier = $identifierExplode[0];
         // Folder by combined identifier
         if (preg_match('/[0-9]+:/', $subFolder)) {
             try {
@@ -66,7 +73,6 @@ class DefaultUploadFolder
         if (trim($subFolder) && $uploadFolder instanceof Folder && $uploadFolder->hasFolder($subFolder)) {
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
-
         return ($uploadFolder instanceof Folder) ? $uploadFolder : null;
     }
 
@@ -80,6 +86,7 @@ class DefaultUploadFolder
             return null;
         }
         $parts = explode(':', $combinedFolderIdentifier);
+        $this->identifier = $parts[0];
         $data = [
             'newfolder' => [
                 0 => [
@@ -88,7 +95,6 @@ class DefaultUploadFolder
                 ]
             ]
         ];
-
         $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $fileProcessor->setActionPermissions();
         $fileProcessor->start($data);
@@ -119,7 +125,6 @@ class DefaultUploadFolder
         array $userTsConfig
     ) {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table] ?? '';
-
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table] ?? '';
         }
@@ -137,6 +142,19 @@ class DefaultUploadFolder
             $subFolder = $userTsConfig['default_upload_folders.']['defaultForAllTables'] ?? '';
         }
 
+        return $subFolder;
+    }
+    protected function checkAndConvertForStrfTime($subFolder, $pageTs, $table){
+        $table = $table ?? 'defaultForAllTables';
+        //example:
+        // tt_content.strftime = 1
+        DebuggerUtility::var_dump($table);
+        if(isset($pageTs['default_upload_folders.'][$table . '.'])){
+            if($pageTs['default_upload_folders.'][$table.'.']['strftime'] == 1){
+                $subFolder = str_replace('%Y', date('Y') , $subFolder);
+                $subFolder = str_replace('%F', date('F') , $subFolder);
+            }
+        }
         return $subFolder;
     }
 }
