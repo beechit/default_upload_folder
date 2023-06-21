@@ -14,6 +14,9 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use function RingCentral\Psr7\str;
+
 class DefaultUploadFolder
 {
     /**
@@ -26,6 +29,7 @@ class DefaultUploadFolder
     public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
         $rteParameters = $_GET['P'] ?? [];
+
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
 
@@ -34,7 +38,6 @@ class DefaultUploadFolder
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
         $pageTs = BackendUtility::getPagesTSconfig($pid);
         $userTsConfig = $backendUserAuthentication->getTSConfig();
-
         $subFolder = '';
         if ($table !== null && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
@@ -47,7 +50,7 @@ class DefaultUploadFolder
         if (trim($subFolder) === '') {
             $subFolder = $this->getDefaultUploadFolderForAllTables($pageTs, $userTsConfig);
         }
-        $subFolder = $this->checkAndConvertForStrfTime($subFolder,$pageTs, $table);
+        $subFolder = $this->checkAndConvertForDateFormat($subFolder,$pageTs, $table);
 
         // Folder by combined identifier
         if (preg_match('/[0-9]+:/', $subFolder)) {
@@ -65,6 +68,7 @@ class DefaultUploadFolder
         if (trim($subFolder) && $uploadFolder instanceof Folder && $uploadFolder->hasFolder($subFolder)) {
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
+
         return ($uploadFolder instanceof Folder) ? $uploadFolder : null;
     }
 
@@ -95,7 +99,6 @@ class DefaultUploadFolder
         $uploadFolder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(
             $combinedFolderIdentifier
         );
-
         return $uploadFolder;
     }
 
@@ -106,7 +109,6 @@ class DefaultUploadFolder
         array $userTsConfig
     ) {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
-
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
         }
@@ -119,6 +121,7 @@ class DefaultUploadFolder
         array $userTsConfig
     ) {
         $subFolder = $defaultPageTs['default_upload_folders.'][$table] ?? '';
+
         if (empty($subFolder)) {
             $subFolder = $userTsConfig['default_upload_folders.'][$table] ?? '';
         }
@@ -138,15 +141,28 @@ class DefaultUploadFolder
 
         return $subFolder;
     }
-    protected function checkAndConvertForStrfTime($subFolder, $pageTs, $table){
+    protected function checkAndConvertForDateFormat($subFolder, $pageTs, $table){
         $table = $table ?? 'defaultForAllTables';
 
         if(isset($pageTs['default_upload_folders.'][$table . '.'])){
-            if($pageTs['default_upload_folders.'][$table.'.']['strftime'] == 1){
-                $subFolder = str_replace('%Y', date('Y') , $subFolder);
-                $subFolder = str_replace('%F', date('F') , $subFolder);
+            DebuggerUtility::var_dump($pageTs['default_upload_folders.'][$table . '.']);
+            if($pageTs['default_upload_folders.'][$table.'.']['dateformat'] == 1){
+
+                $strplace = ['{Y}','{y}',
+                             '{m}','{n}',
+                             '{j}','{d}',
+                             '{W}','{w}'
+                            ];
+                $replaceWith = [
+                             date('Y'), date('y'),
+                             date('m'), date('n'),
+                             date('j'), date('d'),
+                             date('W'), date('w')
+                ];
+                $subFolder = str_replace($strplace, $replaceWith, $subFolder);
             }
         }
         return $subFolder;
     }
+
 }
