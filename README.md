@@ -68,6 +68,8 @@ _Why does the year/month/week/day feature not use the php strftime function & fo
 > <br/>
 > The other values are currently **not** in use.
 > <br/>
+> 
+> This functionality might be refactored in the future when php offers a proper replacement to the removal of `strftime`.
 
 
 **Requirements:**
