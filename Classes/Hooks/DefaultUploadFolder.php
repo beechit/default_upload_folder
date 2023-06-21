@@ -14,9 +14,6 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-use function RingCentral\Psr7\str;
-
 class DefaultUploadFolder
 {
     /**
@@ -145,7 +142,6 @@ class DefaultUploadFolder
         $table = $table ?? 'defaultForAllTables';
 
         if(isset($pageTs['default_upload_folders.'][$table . '.'])){
-            DebuggerUtility::var_dump($pageTs['default_upload_folders.'][$table . '.']);
             if($pageTs['default_upload_folders.'][$table.'.']['dateformat'] == 1){
 
                 $strplace = ['{Y}','{y}',
