@@ -17,6 +17,9 @@ use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
 class DefaultUploadFolder
 {
+    const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
+    const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
+
     /**
      * Get default upload folder for table
      * If none is found for current table defaultForAllTables is used.
@@ -30,13 +33,11 @@ class DefaultUploadFolder
 
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
-
         $table = $params['table'] ?? $rteParameters['table'] ?? null;
         $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
         $pageTs = BackendUtility::getPagesTSconfig($pid);
         $userTsConfig = $backendUserAuthentication->getTSConfig();
-
         $subFolder = '';
         if ($table !== null && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
@@ -85,15 +86,14 @@ class DefaultUploadFolder
                 0 => [
                     'data' => $parts[1],
                     'target' => $parts[0] . ':/',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $fileProcessor = GeneralUtility::makeInstance(ExtendedFileUtility::class);
         $fileProcessor->setActionPermissions();
         $fileProcessor->start($data);
         $fileProcessor->processData();
-
         $uploadFolder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(
             $combinedFolderIdentifier
         );
@@ -106,9 +106,13 @@ class DefaultUploadFolder
         array $defaultPageTs,
         array $userTsConfig
     ) {
-        $subFolder = $defaultPageTs['default_upload_folders.'][$table.'.'][$field] ?? '';
+        $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
+        $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
+        $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         if (empty($subFolder)) {
-            $subFolder = $userTsConfig['default_upload_folders.'][$table.'.'][$field] ?? '';
+            $subFolder = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
+            $dateFormatConfig = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
+            $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         }
         return $subFolder;
     }
@@ -118,12 +122,15 @@ class DefaultUploadFolder
         array $defaultPageTs,
         array $userTsConfig
     ) {
-        $subFolder = $defaultPageTs['default_upload_folders.'][$table] ?? '';
+        $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table] ?? '';
 
+        $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'] ?? [];
+        $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         if (empty($subFolder)) {
-            $subFolder = $userTsConfig['default_upload_folders.'][$table] ?? '';
+            $subFolder = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table] ?? '';
+            $dateFormatConfig = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'] ?? [];
+            $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         }
-
         return $subFolder;
     }
 
@@ -131,12 +138,45 @@ class DefaultUploadFolder
         array $defaultPageTs,
         array $userTsConfig
     ) {
-        $subFolder = $defaultPageTs['default_upload_folders.']['defaultForAllTables'] ?? '';
+        $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES] ?? '';
 
+        $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES . '.'] ?? [];
+        $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         if (empty($subFolder)) {
-            $subFolder = $userTsConfig['default_upload_folders.']['defaultForAllTables'] ?? '';
-        }
+            $subFolder = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES] ?? '';
 
+            $dateFormatConfig = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES . '.'] ?? [];
+            $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
+        }
+        return $subFolder;
+    }
+
+    /**
+     * @param $subFolder
+     * @param $dateFormatConfig
+     * @return string $subFolder
+     */
+    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig) : string
+    {
+        if (trim($subFolder) === '') {
+            return $subFolder;
+        }
+        if (!isset($dateFormatConfig['dateformat']) || (int)$dateFormatConfig['dateformat'] !== 1) {
+            return $subFolder;
+        }
+        $strReplace = [
+            '{Y}', '{y}',
+            '{m}', '{n}',
+            '{j}', '{d}',
+            '{W}', '{w}',
+        ];
+        $replaceWith = [
+            date('Y'), date('y'),
+            date('m'), date('n'),
+            date('j'), date('d'),
+            date('W'), date('w'),
+        ];
+        $subFolder = str_replace($strReplace, $replaceWith, $subFolder);
         return $subFolder;
     }
 }
