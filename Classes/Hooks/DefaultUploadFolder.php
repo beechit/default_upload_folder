@@ -33,7 +33,6 @@ class DefaultUploadFolder
 
         /** @var Folder $uploadFolder */
         $uploadFolder = $params['uploadFolder'];
-
         $table = $params['table'] ?? $rteParameters['table'] ?? null;
         $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
         $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
@@ -108,12 +107,10 @@ class DefaultUploadFolder
         array $userTsConfig
     ) {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
-
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
         $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         if (empty($subFolder)) {
             $subFolder = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
-
             $dateFormatConfig = $userTsConfig[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
             $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
         }
@@ -154,7 +151,12 @@ class DefaultUploadFolder
         return $subFolder;
     }
 
-    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig)
+    /**
+     * @param $subFolder
+     * @param $dateFormatConfig
+     * @return string $subFolder
+     */
+    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig) : string
     {
         if (trim($subFolder) === '') {
             return $subFolder;
@@ -162,7 +164,8 @@ class DefaultUploadFolder
         if (!isset($dateFormatConfig['dateformat']) || (int)$dateFormatConfig['dateformat'] !== 1) {
             return $subFolder;
         }
-        $strReplace = ['{Y}', '{y}',
+        $strReplace = [
+            '{Y}', '{y}',
             '{m}', '{n}',
             '{j}', '{d}',
             '{W}', '{w}',
