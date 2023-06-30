@@ -23,14 +23,12 @@ Make it possible to configure the default upload folder for a certain TCA column
 
         # You can set a fallback for all tables
         defaultForAllTables = 1:myDefaultUploadFolderForThisPartOfTheTree
-        
+
         # You can set a default year/month/day folder within the set default folder
         tx_news_domain_model_news.dateformat = 1
-        tx_news_domain_model_news = 1:news/{Y}/{n}
+        tx_news_domain_model_news = 1:news/{Y}/{m}
     }
 ```
-
-
 
 **FAQ**
 
@@ -47,13 +45,13 @@ _Are folders automatically created?_
 
 _How to use the year/month/week/day feature?_
 > 1. Make sure the variable `tx_mews_domain_model_news` has the `dateformat` value set to `1`.
-> 2. Then (over)write the original variable however you prefer: `tx_news_domain_model_news = 1:news/{Y}/{n}`
+> 2. Then (over)write the original variable however you prefer: `tx_news_domain_model_news = 1:news/{Y}/{m}`
 > 3. This will translate into: `1:news/2023/06` which in turn creates the directory: `news/2023/06`
 
 _Why does the year/month/week/day feature not use the php strftime function & format?_
 
-> Php 8.1 is going to mark strftime to depricated, and will [fully depricate in php 9.](https://www.php.net/manual/en/function.strftime.php) 
-> 
+> The strftime function has been deprecated in PHP 8.1, and will be [removed in PHP 9.](https://www.php.net/manual/en/function.strftime.php)
+>
 > Currently, there is no proper solution that takes localisation in consideration. Hence, the choice to create a custom interpreter.
 > The values used are based on the [date() -> Parameter Values](https://www.w3schools.com/php/func_date_date.asp) format.
 > the values currently in use are:
@@ -65,12 +63,10 @@ _Why does the year/month/week/day feature not use the php strftime function & fo
 > - j - The day of the month without leading zeros (1 to 31)
 > - W - The ISO-8601 week number of year (weeks starting on Monday)
 > - w - A numeric representation of the day (0 for Sunday, 6 for Saturday)
-> <br/>
+>
 > The other values are currently **not** in use.
-> <br/>
-> 
+>
 > This functionality might be refactored in the future when php offers a proper replacement to the removal of `strftime`.
-
 
 **Requirements:**
 
