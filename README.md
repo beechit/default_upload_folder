@@ -7,7 +7,8 @@ Make it possible to configure the default upload folder for a certain TCA column
 
 1. Download from TER or require (`composer require beechit/default-upload-folder`) extension default_upload_folder
 2. Install extension default_upload_folder via the extension manager
-3. Create the default folders or the folder is automatically created *(Editors needs access to storage and the folder root)*
+3. Create the default folders or the folder is automatically created *(Editors needs access to storage and the folder
+   root)*
 4. Add configuration to pageTs
 
 ```
@@ -50,10 +51,13 @@ _How to use the year/month/week/day feature?_
 
 _Why does the year/month/week/day feature not use the php strftime function & format?_
 
-> The strftime function has been deprecated in PHP 8.1, and will be [removed in PHP 9.](https://www.php.net/manual/en/function.strftime.php)
+> The strftime function has been deprecated in PHP 8.1, and will
+> be [removed in PHP 9.](https://www.php.net/manual/en/function.strftime.php)
 >
-> Currently, there is no proper solution that takes localisation in consideration. Hence, the choice to create a custom interpreter.
-> The values used are based on the [date() -> Parameter Values](https://www.w3schools.com/php/func_date_date.asp) format.
+> Currently, there is no proper solution that takes localisation in consideration. Hence, the choice to create a custom
+> interpreter.
+> The values used are based on the [date() -> Parameter Values](https://www.w3schools.com/php/func_date_date.asp)
+> format.
 > the values currently in use are:
 > - Y - A four digit representation of a year
 > - y - A two digit representation of a year
@@ -66,7 +70,8 @@ _Why does the year/month/week/day feature not use the php strftime function & fo
 >
 > The other values are currently **not** in use.
 >
-> This functionality might be refactored in the future when php offers a proper replacement to the removal of `strftime`.
+> This functionality might be refactored in the future when php offers a proper replacement to the removal
+> of `strftime`.
 
 **Requirements:**
 

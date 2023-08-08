@@ -12,13 +12,13 @@ use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class DefaultUploadFolder
 {
-    const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
-    const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
+    public const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
+    public const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
 
     /**
      * Get default upload folder for table
@@ -80,7 +80,7 @@ class DefaultUploadFolder
      */
     private function createUploadFolder($combinedFolderIdentifier): ?Folder
     {
-        if (strpos($combinedFolderIdentifier, ':') === false) {
+        if (!str_contains($combinedFolderIdentifier, ':')) {
             return null;
         }
         $parts = explode(':', $combinedFolderIdentifier);
@@ -184,7 +184,7 @@ class DefaultUploadFolder
      * @param $dateFormatConfig
      * @return string $subFolder
      */
-    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig) : string
+    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig): string
     {
         if (trim($subFolder) === '') {
             return $subFolder;
