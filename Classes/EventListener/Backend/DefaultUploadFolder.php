@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BeechIt\DefaultUploadFolder\EventListener\Backend;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Resource\Event\AfterDefaultUploadFolderWasResolvedEvent;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
@@ -13,13 +12,16 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class DefaultUploadFolder
 {
-    public const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
-    public const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
+    private const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
+    private const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
 
+    /**
+     * @param AfterDefaultUploadFolderWasResolvedEvent $event
+     * @return void
+     */
     public function __invoke(AfterDefaultUploadFolderWasResolvedEvent $event): void
     {
         /** @var Folder $uploadFolder */
