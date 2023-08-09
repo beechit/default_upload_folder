@@ -19,6 +19,7 @@ class DefaultUploadFolder
 {
     public const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
     public const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
+
     public function __invoke(AfterDefaultUploadFolderWasResolvedEvent $event): void
     {
         /** @var Folder $uploadFolder */
@@ -103,9 +104,10 @@ class DefaultUploadFolder
     protected function getDefaultUploadFolderForTableAndField(
         string $table,
         string $field,
-        array $defaultPageTs,
-        array $userTsConfig
-    ): string {
+        array  $defaultPageTs,
+        array  $userTsConfig
+    ): string
+    {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
         $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
@@ -127,9 +129,10 @@ class DefaultUploadFolder
      */
     protected function getDefaultUploadFolderForTable(
         string $table,
-        array $defaultPageTs,
-        array $userTsConfig
-    ): string {
+        array  $defaultPageTs,
+        array  $userTsConfig
+    ): string
+    {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table] ?? '';
 
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'] ?? [];
@@ -152,7 +155,8 @@ class DefaultUploadFolder
     protected function getDefaultUploadFolderForAllTables(
         array $defaultPageTs,
         array $userTsConfig
-    ): string {
+    ): string
+    {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES] ?? '';
 
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES . '.'] ?? [];
