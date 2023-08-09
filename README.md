@@ -75,4 +75,13 @@ _Why does the year/month/week/day feature not use the php strftime function & fo
 
 **Requirements:**
 
-> TYPO3 10 LTS or TYPO3 11 LTS
+> TYPO3 V12.4
+
+**Changes TYPO3 V12:**
+
+>Converted from Hook to Event, as Hooks are depricated.
+> 
+> Specifically: https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ApiOverview/Events/Events/Core/Resource/AfterDefaultUploadFolderWasResolvedEvent.html
+> 
+> Added Services.yaml (as required for Event handling)
+> Now receives $backendUserAuthentication directly from $GLOBALS['BE_USER'].

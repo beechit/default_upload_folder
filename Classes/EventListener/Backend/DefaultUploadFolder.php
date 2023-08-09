@@ -2,43 +2,32 @@
 
 declare(strict_types=1);
 
-namespace BeechIt\DefaultUploadFolder\Hooks;
-
-// All code (c) Beech Applications B.V. all rights reserved
+namespace BeechIt\DefaultUploadFolder\EventListener\Backend;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Resource\Event\AfterDefaultUploadFolderWasResolvedEvent;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class DefaultUploadFolder
 {
     public const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
     public const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
-
-    /**
-     * Get default upload folder for table
-     * If none is found for current table defaultForAllTables is used.
-     *
-     * @param array $params
-     * @param BackendUserAuthentication $backendUserAuthentication
-     * @return Folder|null
-     */
-    public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
+    public function __invoke(AfterDefaultUploadFolderWasResolvedEvent $event): void
     {
-        $rteParameters = $_GET['P'] ?? [];
-
         /** @var Folder $uploadFolder */
-        $uploadFolder = $params['uploadFolder'];
-        $table = $params['table'] ?? $rteParameters['table'] ?? null;
-        $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
-        $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
+        $uploadFolder = $event->getUploadFolder() ?? null;
+        $table = $event->getTable();
+        $field = $event->getFieldName();
+        $pid = $event->getPid();
         $pageTs = BackendUtility::getPagesTSconfig($pid);
-        $userTsConfig = $backendUserAuthentication->getTSConfig();
+        $userTsConfig = $GLOBALS['BE_USER']->getTsConfig();
         $subFolder = '';
         if ($table !== null && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
@@ -69,7 +58,7 @@ class DefaultUploadFolder
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
-        return ($uploadFolder instanceof Folder) ? $uploadFolder : null;
+        $event->setUploadFolder($uploadFolder instanceof Folder ? $uploadFolder : null);
     }
 
     /**
