@@ -1,0 +1,10 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  BeechIt\DefaultUploadFolder\EventListener\Backend\DefaultUploadFolder:
+    tags:
+      - name: event.listener
+        identifier: 'after-default-upload-folder-was-resolved'
