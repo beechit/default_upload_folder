@@ -61,7 +61,9 @@ class DefaultUploadFolder
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
-        $event->setUploadFolder($uploadFolder instanceof Folder ? $uploadFolder : null);
+        if ($uploadFolder instanceof FolderInterface) {
+            $event->setUploadFolder($uploadFolder);
+        }
     }
 
     /**
