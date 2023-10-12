@@ -84,11 +84,29 @@ class DefaultUploadFolder
             return null;
         }
         $parts = explode(':', $combinedFolderIdentifier);
+        // Split $combinedFolderIdentifier into target and data(folders to be created) due possible permissions mismatch.
+        // When an user has access to a subdir by filemount but not access to the full storage, the root target (/) is checked for permission.
+        // Therefore, an exception will be thrown. Checking and specifying the target more precise this will be avoid.
+        $dirs = explode('/', trim($parts[1], '/'));
+        $lastItem = array_pop($dirs);
+        $nonExistingDirs = [];
+        while ($lastItem !== null) {
+            $nonExistingDirs = [$lastItem, ...$nonExistingDirs];
+            try {
+                GeneralUtility::makeInstance(ResourceFactory::class)
+                    ->getFolderObjectFromCombinedIdentifier(
+                        $parts[0] . ':/' . implode('/', $dirs)
+                    );
+                break;
+            } catch (FolderDoesNotExistException $folderDoesNotExistException) {
+            }
+            $lastItem = array_pop($dirs);
+        }
         $data = [
             'newfolder' => [
                 0 => [
-                    'data' => $parts[1],
-                    'target' => $parts[0] . ':/',
+                    'data' => implode('/', $nonExistingDirs),
+                    'target' => $parts[0] . ':/' . implode('/', $dirs),
                 ],
             ],
         ];
@@ -184,7 +202,7 @@ class DefaultUploadFolder
      * @param $dateFormatConfig
      * @return string $subFolder
      */
-    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig) : string
+    protected function checkAndConvertForDateFormat($subFolder, $dateFormatConfig): string
     {
         if (trim($subFolder) === '') {
             return $subFolder;
@@ -193,16 +211,24 @@ class DefaultUploadFolder
             return $subFolder;
         }
         $strReplace = [
-            '{Y}', '{y}',
-            '{m}', '{n}',
-            '{j}', '{d}',
-            '{W}', '{w}',
+            '{Y}',
+            '{y}',
+            '{m}',
+            '{n}',
+            '{j}',
+            '{d}',
+            '{W}',
+            '{w}',
         ];
         $replaceWith = [
-            date('Y'), date('y'),
-            date('m'), date('n'),
-            date('j'), date('d'),
-            date('W'), date('w'),
+            date('Y'),
+            date('y'),
+            date('m'),
+            date('n'),
+            date('j'),
+            date('d'),
+            date('W'),
+            date('w'),
         ];
         return str_replace($strReplace, $replaceWith, $subFolder);
     }
