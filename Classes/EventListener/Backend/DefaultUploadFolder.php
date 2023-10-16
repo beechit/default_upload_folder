@@ -79,11 +79,29 @@ class DefaultUploadFolder
             return null;
         }
         $parts = explode(':', $combinedFolderIdentifier);
+        // Split $combinedFolderIdentifier into target and data(folders to be created) due possible permissions mismatch.
+        // When an user has access to a subdir by filemount but not access to the full storage, the root target (/) is checked for permission.
+        // Therefore, an exception will be thrown. Checking and specifying the target more precise this will be avoid.
+        $dirs = explode('/', trim($parts[1], '/'));
+        $lastItem = array_pop($dirs);
+        $nonExistingDirs = [];
+        while ($lastItem !== null) {
+            $nonExistingDirs = [$lastItem, ...$nonExistingDirs];
+            try {
+                GeneralUtility::makeInstance(ResourceFactory::class)
+                    ->getFolderObjectFromCombinedIdentifier(
+                        $parts[0] . ':/' . implode('/', $dirs)
+                    );
+                break;
+            } catch (FolderDoesNotExistException $folderDoesNotExistException) {
+            }
+            $lastItem = array_pop($dirs);
+        }
         $data = [
             'newfolder' => [
                 0 => [
-                    'data' => $parts[1],
-                    'target' => $parts[0] . ':/',
+                    'data' => implode('/', $nonExistingDirs),
+                    'target' => $parts[0] . ':/' . implode('/', $dirs),
                 ],
             ],
         ];
