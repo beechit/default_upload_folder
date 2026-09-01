@@ -8,16 +8,13 @@ $EM_CONF[$_EXTKEY] = [
     'description' => 'Make it possible to configure the default upload folder for a certain TCA column',
     'category' => 'be',
     'state' => 'stable',
-    'uploadfolder' => false,
-    'createDirs' => '',
-    'clearCacheOnLoad' => 1,
     'author' => 'Frans Saris',
     'author_email' => 't3ext@beecht.it',
     'author_company' => 'Beech.it',
-    'version' => '3.0.0',
+    'version' => '1.3.1',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.4.0-13.4.99',
+            'typo3' => '10.4.0-11.5.99',
         ],
         'conflicts' => [
         ],

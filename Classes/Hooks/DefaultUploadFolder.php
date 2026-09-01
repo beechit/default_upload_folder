@@ -2,36 +2,43 @@
 
 declare(strict_types=1);
 
-namespace BeechIt\DefaultUploadFolder\EventListener\Backend;
+namespace BeechIt\DefaultUploadFolder\Hooks;
+
+// All code (c) Beech Applications B.V. all rights reserved
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Resource\Event\AfterDefaultUploadFolderWasResolvedEvent;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
 use TYPO3\CMS\Core\Resource\Folder;
-use TYPO3\CMS\Core\Resource\FolderInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\File\ExtendedFileUtility;
 
 class DefaultUploadFolder
 {
-    private const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
-    private const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
+    const DEFAULT_UPLOAD_FOLDERS = 'default_upload_folders.';
+    const DEFAULT_FOR_ALL_TABLES = 'defaultForAllTables';
 
     /**
-     * @param AfterDefaultUploadFolderWasResolvedEvent $event
-     * @return void
+     * Get default upload folder for table
+     * If none is found for current table defaultForAllTables is used.
+     *
+     * @param array $params
+     * @param BackendUserAuthentication $backendUserAuthentication
+     * @return Folder|null
      */
-    public function __invoke(AfterDefaultUploadFolderWasResolvedEvent $event): void
+    public function getDefaultUploadFolder(array $params, BackendUserAuthentication $backendUserAuthentication): ?Folder
     {
+        $rteParameters = $_GET['P'] ?? [];
+
         /** @var Folder $uploadFolder */
-        $uploadFolder = $event->getUploadFolder() ?? null;
-        $table = $event->getTable();
-        $field = $event->getFieldName();
-        $pid = $event->getPid();
+        $uploadFolder = $params['uploadFolder'];
+        $table = $params['table'] ?? $rteParameters['table'] ?? null;
+        $field = $params['field'] ?? $rteParameters['fieldName'] ?? null;
+        $pid = $params['pid'] ?? $rteParameters['pid'] ?? 0;
         $pageTs = BackendUtility::getPagesTSconfig($pid);
-        $userTsConfig = $GLOBALS['BE_USER']->getTsConfig();
+        $userTsConfig = $backendUserAuthentication->getTSConfig();
         $subFolder = '';
         if ($table !== null && $field !== null) {
             $subFolder = $this->getDefaultUploadFolderForTableAndField($table, $field, $pageTs, $userTsConfig);
@@ -62,9 +69,7 @@ class DefaultUploadFolder
             $uploadFolder = $uploadFolder->getSubfolder($subFolder);
         }
 
-        if ($uploadFolder instanceof FolderInterface) {
-            $event->setUploadFolder($uploadFolder);
-        }
+        return ($uploadFolder instanceof Folder) ? $uploadFolder : null;
     }
 
     /**
@@ -75,7 +80,7 @@ class DefaultUploadFolder
      */
     private function createUploadFolder($combinedFolderIdentifier): ?Folder
     {
-        if (!str_contains($combinedFolderIdentifier, ':')) {
+        if (strpos($combinedFolderIdentifier, ':') === false) {
             return null;
         }
         $parts = explode(':', $combinedFolderIdentifier);
@@ -127,10 +132,9 @@ class DefaultUploadFolder
     protected function getDefaultUploadFolderForTableAndField(
         string $table,
         string $field,
-        array  $defaultPageTs,
-        array  $userTsConfig
-    ): string
-    {
+        array $defaultPageTs,
+        array $userTsConfig
+    ): string {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field] ?? '';
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'][$field . '.'] ?? [];
         $subFolder = $this->checkAndConvertForDateFormat($subFolder, $dateFormatConfig);
@@ -152,10 +156,9 @@ class DefaultUploadFolder
      */
     protected function getDefaultUploadFolderForTable(
         string $table,
-        array  $defaultPageTs,
-        array  $userTsConfig
-    ): string
-    {
+        array $defaultPageTs,
+        array $userTsConfig
+    ): string {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table] ?? '';
 
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][$table . '.'] ?? [];
@@ -178,8 +181,7 @@ class DefaultUploadFolder
     protected function getDefaultUploadFolderForAllTables(
         array $defaultPageTs,
         array $userTsConfig
-    ): string
-    {
+    ): string {
         $subFolder = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES] ?? '';
 
         $dateFormatConfig = $defaultPageTs[self::DEFAULT_UPLOAD_FOLDERS][self::DEFAULT_FOR_ALL_TABLES . '.'] ?? [];
@@ -209,16 +211,24 @@ class DefaultUploadFolder
             return $subFolder;
         }
         $strReplace = [
-            '{Y}', '{y}',
-            '{m}', '{n}',
-            '{j}', '{d}',
-            '{W}', '{w}',
+            '{Y}',
+            '{y}',
+            '{m}',
+            '{n}',
+            '{j}',
+            '{d}',
+            '{W}',
+            '{w}',
         ];
         $replaceWith = [
-            date('Y'), date('y'),
-            date('m'), date('n'),
-            date('j'), date('d'),
-            date('W'), date('w'),
+            date('Y'),
+            date('y'),
+            date('m'),
+            date('n'),
+            date('j'),
+            date('d'),
+            date('W'),
+            date('w'),
         ];
         return str_replace($strReplace, $replaceWith, $subFolder);
     }
